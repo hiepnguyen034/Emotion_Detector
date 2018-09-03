@@ -7,11 +7,11 @@ from tensorflow.python.framework import ops
 from PIL import Image
 
 def random_mini_batches(X, Y, mini_batch_size = 64, seed = 0):
-    
+
     m = X.shape[0]                  # number of training examples
     mini_batches = []
     np.random.seed(seed)
-    
+
     #Shuffle (X, Y)
     permutation = list(np.random.permutation(m))
     shuffled_X = X[permutation,:,:,:]
@@ -24,13 +24,13 @@ def random_mini_batches(X, Y, mini_batch_size = 64, seed = 0):
         mini_batch_Y = shuffled_Y[k * mini_batch_size : k * mini_batch_size + mini_batch_size,:]
         mini_batch = (mini_batch_X, mini_batch_Y)
         mini_batches.append(mini_batch)
-    
+
     if m % mini_batch_size != 0:
         mini_batch_X = shuffled_X[num_complete_minibatches * mini_batch_size : m,:,:,:]
         mini_batch_Y = shuffled_Y[num_complete_minibatches * mini_batch_size : m,:]
         mini_batch = (mini_batch_X, mini_batch_Y)
         mini_batches.append(mini_batch)
-    
+
     return mini_batches
 
 
@@ -39,53 +39,47 @@ def convert_to_one_hot(Y, C):
     return Y
 
 
-def forward_prop(X, parameters):
+def forward_prop_predict(X, parameters):
 
     W1 = parameters['W1']
-    b1 = parameters['b1']
     W2 = parameters['W2']
-    b2 = parameters['b2']
-    W3 = parameters['W3']
-    b3 = parameters['b3']
-    W4 = parameters['W4']
-    b4=parameters['b4']
-                                                           # Numpy Equivalents:
-    Z1 = tf.add(tf.matmul(W1, X), b1)                      # Z1 = np.dot(W1, X) + b1
-    A1 = tf.nn.relu(Z1)                                    # A1 = relu(Z1)
-    Z2 = tf.add(tf.matmul(W2, A1), b2)                     # Z2 = np.dot(W2, a1) + b2
-    A2 = tf.nn.relu(Z2)                                    # A2 = relu(Z2)
-    Z3 = tf.add(tf.matmul(W3, A2), b3)                     # Z3 = np.dot(W3,Z2) + b3
-    A3 = tf.nn.relu(Z3)
-    Z4 = tf.add(tf.matmul(W4,A3),b4)
-    return Z4
+    WL1 = parameters['WL1']
+    b1= parameters['b1']
+
+    Z1 = tf.nn.conv2d(X,W1,strides=[1,1,1,1],padding='SAME')
+    A1 = tf.nn.relu(Z1)
+    P1 = tf.nn.max_pool(A1,ksize=[1,6,6,1],strides=[1,6,6,1],padding='SAME')
+    Z2 = tf.nn.conv2d(P1,W2,strides=[1,1,1,1],padding='SAME')
+    A2 = tf.nn.relu(Z2)
+    P2 = tf.nn.max_pool(A2,ksize=[1,4,4,1],strides=[1,4,4,1],padding='SAME')
+    P2 = tf.contrib.layers.flatten(P2)
+    Z3 = tf.add(tf.matmul(WL1,tf.transpose(P2)),b1)
+    Z3 = tf.transpose(Z3)
+    #Z3 = tf.nn.dropout(keep_prob)
+    #Z4 = tf.contrib.layers.fully_connected(Z3,16,activation_fn=None)
+
+    return Z3
 
 
 def predict(X, parameters):
 
     W1 = tf.convert_to_tensor(parameters["W1"])
-    b1 = tf.convert_to_tensor(parameters["b1"])
     W2 = tf.convert_to_tensor(parameters["W2"])
-    b2 = tf.convert_to_tensor(parameters["b2"])
-    W3 = tf.convert_to_tensor(parameters["W3"])
-    b3 = tf.convert_to_tensor(parameters["b3"])
-    W4 = tf.convert_to_tensor(parameters['W4'])
-    b4 = tf.convert_to_tensor(parameters['b4'])
+    WL1 = tf.convert_to_tensor(parameters["WL1"])
+    b1 = tf.convert_to_tensor(parameters["b1"])
     parameters = {"W1": W1,
                   "b1": b1,
                   "W2": W2,
-                  "b2": b2,
-                  "W3": W3,
-                  "b3": b3,
-                  "W4":W4,
-                  "b4":b4}
+                  "WL1": WL1,
+                  }
 
 
-    x = tf.placeholder("float", [15, None])
+    x = tf.placeholder("float", [None, 151,151])
 
-    z4 = forward_prop(x, parameters)
-    p = tf.argmax(z4)
+    z4 = forward_prop_predict(x, parameters)
+    pred = tf.argmax(z4)
 
     sess = tf.Session()
-    prediction = sess.run(p, feed_dict = {x: X})
+    prediction = sess.run(pred, feed_dict = {x: X})
 
     return prediction
