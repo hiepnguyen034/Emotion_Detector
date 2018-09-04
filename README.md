@@ -1,5 +1,6 @@
 # Emotion_Detector
 Detect facial expression using opencv and linear algebra
+
 The model detects if the person in the image is sad, neutral, happy, or surprised
 
 # Dependencies
