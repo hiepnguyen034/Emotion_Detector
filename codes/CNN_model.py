@@ -19,7 +19,7 @@ data=get_images_and_labels("C:\\Users\\Hiep Nguyen\\Desktop\\Emotion_Detector\\d
 (x_train,y_train)=data
 x_train=np.array(x_train)
 #print(x_train.shape)
-x_train=x_train.reshape(161,151,151,-1)
+x_train=x_train.reshape(x_train.shape[0],x_train.shape[1],x_train.shape[2],-1)
 x_train=x_train/255
 y_train=get_emotion(y_train)
 y_train=np.array(y_train)
@@ -30,11 +30,11 @@ y_train=y_train.reshape(161,-1)
 test_set=data=get_images_and_labels("C:\\Users\\Hiep Nguyen\\Desktop\\Emotion_Detector\\data\\dev_set")
 (x_test,y_test)=test_set
 x_test=np.array(x_test)
-x_test=x_test.reshape(10,151,151,-1)
+x_test=x_test.reshape(x_test.shape[0],x_test.shape[1],x_test.shape[2],-1)
 x_test=x_test/255
 y_test=get_emotion(y_test)
 y_test=np.array(y_test)
-y_test.reshape(10,-1)
+y_test.reshape(y_test.shape[0],-1)
 
 
 y_train=convert_to_one_hot(y_train.T,4).T
@@ -119,7 +119,7 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate = 0.001,
         for epoch in range(num_epochs):
 
             minibatch_cost = 0.
-            num_minibatches = int(m / minibatch_size) 
+            num_minibatches = int(m / minibatch_size)
             seed = seed + 1
             minibatches = random_mini_batches(X_train, Y_train, minibatch_size, seed)
 
@@ -138,7 +138,7 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate = 0.001,
             if print_cost == True and epoch % 1 == 0:
                 costs.append(minibatch_cost)
         save_path = saver.save(sess, "./saved_model/CNN_model.ckpt")
-        print("Model is saved to ", save_path)       
+        print("Model is saved to ", save_path)
 
 
         plt.plot(np.squeeze(costs))
@@ -162,6 +162,6 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate = 0.001,
         return train_accuracy, test_accuracy, parameters
 
 
- 
+
 if __name__ == '__main__':
 	model(x_train, y_train, x_test, y_test)
