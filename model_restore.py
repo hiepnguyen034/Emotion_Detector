@@ -18,7 +18,7 @@ def restore_model():
 					'b1' :sess.run(b1)
 					}
 
-	print(parameters)
+	#print(parameters)
 	return parameters
 
 if __name__ == '__main__':
