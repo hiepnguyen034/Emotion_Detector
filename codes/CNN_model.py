@@ -94,7 +94,8 @@ def compute_cost(Z3, Y):
 
 
 def model(X_train, Y_train, X_test, Y_test, learning_rate = 0.001,
-          num_epochs = 1000, minibatch_size = 64, print_cost = True):
+          num_epochs = 1000, minibatch_size = 64, print_cost = True, lambd=0.1):
+
 
 
     ops.reset_default_graph()
@@ -108,6 +109,11 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate = 0.001,
     parameters = initialize_parameters()
     Z3 = forward_prop(X,parameters)
     cost = compute_cost(Z3,Y)
+    L2_regularization_cost = lambd * (tf.reduce_sum(
+                            tf.square(parameters['W1'])) + tf.reduce_sum(
+                            tf.square(parameters['W2'])) + tf.reduce_sum(
+                            tf.square(parameters['WL1']))) / (2 * x_train.shape[0])
+    cost = cost+L2_regularization_cost
     optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
 
     init = tf.global_variables_initializer()
