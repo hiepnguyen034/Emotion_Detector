@@ -35,7 +35,7 @@ def get_emotion(labels):
             labels[i]=2
         elif labels[i]=='surprised':
             labels[i]=3
-        elif labels[i]=='sad' or labels[i]=='happy':
+        elif labels[i]=='sad' or labels[i]=='sleepy':
             labels[i]=0
         else:
             labels[i]=1

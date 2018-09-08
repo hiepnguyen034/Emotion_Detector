@@ -68,23 +68,26 @@ def initialize_parameters():
 
 
 def forward_prop(X, parameters):
-
+    keep_prob=tf.placeholder_with_default(1.0,shape=())
     W1 = parameters['W1']
     W2 = parameters['W2']
     WL1 = parameters['WL1']
     b1= parameters['b1']
 
     Z1 = tf.nn.conv2d(X,W1,strides=[1,1,1,1],padding='SAME')
+    #Z1=tf.layers.batch_normalization(Z1)
     A1 = tf.nn.relu(Z1)
     P1 = tf.nn.max_pool(A1,ksize=[1,6,6,1],strides=[1,6,6,1],padding='SAME')
     Z2 = tf.nn.conv2d(P1,W2,strides=[1,1,1,1],padding='SAME')
+    #Z2 = tf.layers.batch_normalization(Z2)
     A2 = tf.nn.relu(Z2)
     P2 = tf.nn.max_pool(A2,ksize=[1,4,4,1],strides=[1,4,4,1],padding='SAME')
     P2 = tf.contrib.layers.flatten(P2)
+    P2 = tf.nn.dropout(P2,keep_prob)
     Z3 = tf.add(tf.matmul(WL1,tf.transpose(P2)),b1)
     Z3 = tf.transpose(Z3)
 
-    return Z3
+    return Z3,keep_prob
 
 def compute_cost(Z3, Y):
 
@@ -94,8 +97,7 @@ def compute_cost(Z3, Y):
 
 
 def model(X_train, Y_train, X_test, Y_test, learning_rate = 0.001,
-          num_epochs = 1000, minibatch_size = 64, print_cost = True, lambd=0.1):
-
+          num_epochs = 5000, minibatch_size = 64, print_cost = True, lambd=0.2):
 
 
     ops.reset_default_graph()
@@ -107,12 +109,9 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate = 0.001,
 
     X, Y = create_placeholders(n_H0,n_W0,n_C0,n_y)
     parameters = initialize_parameters()
-    Z3 = forward_prop(X,parameters)
+    Z3, keep_prob = forward_prop(X,parameters)
     cost = compute_cost(Z3,Y)
-    L2_regularization_cost = lambd * (tf.reduce_sum(
-                            tf.square(parameters['W1'])) + tf.reduce_sum(
-                            tf.square(parameters['W2'])) + tf.reduce_sum(
-                            tf.square(parameters['WL1']))) / (2 * x_train.shape[0])
+    L2_regularization_cost = lambd * (tf.reduce_sum(tf.square(parameters['W1'])) + tf.reduce_sum(tf.square(parameters['W2'])) + tf.reduce_sum(tf.square(parameters['WL1']))) / (2 * x_train.shape[0])
     cost = cost+L2_regularization_cost
     optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
 
@@ -125,7 +124,7 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate = 0.001,
         for epoch in range(num_epochs):
 
             minibatch_cost = 0.
-            num_minibatches = int(m / minibatch_size)
+            num_minibatches = int(m / minibatch_size) 
             seed = seed + 1
             minibatches = random_mini_batches(X_train, Y_train, minibatch_size, seed)
 
@@ -133,19 +132,19 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate = 0.001,
 
                 (minibatch_X, minibatch_Y) = minibatch
                 _ , temp_cost = sess.run([optimizer,cost],feed_dict={X:minibatch_X,
-                                                                    Y:minibatch_Y})
+                                                                    Y:minibatch_Y,keep_prob:0.5})
 
                 minibatch_cost += temp_cost / num_minibatches
 
 
 
-            if print_cost == True and epoch % 5 == 0:
+            if print_cost == True and epoch % 10 == 0:
                 print ("Cost after epoch %i: %f" % (epoch, minibatch_cost))
             if print_cost == True and epoch % 1 == 0:
                 costs.append(minibatch_cost)
         save_path = saver.save(sess, "./saved_model/CNN_model.ckpt")
-        print("Model is saved to ", save_path)
-
+        print("Model is saved to ", save_path)       
+        file_writer=tf.summary.FileWriter('./logs',sess.graph)
 
         plt.plot(np.squeeze(costs))
         plt.ylabel('cost')
@@ -156,7 +155,9 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate = 0.001,
         # Calculate the correct predictions
         predict_op = tf.argmax(Z3, 1)
         correct_prediction = tf.equal(predict_op, tf.argmax(Y, 1))
-
+        # See the correct predictions
+        res=sess.run(predict_op,feed_dict={X:X_test,Y:Y_test})
+        print('correct predictions are:', res)
         # Calculate accuracy on the test set
         accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
 
@@ -164,10 +165,10 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate = 0.001,
         test_accuracy = accuracy.eval({X: X_test, Y: Y_test})
         print("Train Accuracy:", train_accuracy)
         print("Test Accuracy:", test_accuracy)
-        #print(sess.run(parameters))
+            #print(sess.run(parameters))
         return train_accuracy, test_accuracy, parameters
 
 
-
+ 
 if __name__ == '__main__':
 	model(x_train, y_train, x_test, y_test)

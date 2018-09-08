@@ -40,25 +40,26 @@ def convert_to_one_hot(Y, C):
 
 
 def forward_prop_predict(X, parameters):
-
+    keep_prob=tf.placeholder_with_default(1.0,shape=())
     W1 = parameters['W1']
     W2 = parameters['W2']
     WL1 = parameters['WL1']
     b1= parameters['b1']
 
     Z1 = tf.nn.conv2d(X,W1,strides=[1,1,1,1],padding='SAME')
+    #Z1=tf.layers.batch_normalization(Z1)
     A1 = tf.nn.relu(Z1)
     P1 = tf.nn.max_pool(A1,ksize=[1,6,6,1],strides=[1,6,6,1],padding='SAME')
     Z2 = tf.nn.conv2d(P1,W2,strides=[1,1,1,1],padding='SAME')
+    #Z2 = tf.layers.batch_normalization(Z2)
     A2 = tf.nn.relu(Z2)
     P2 = tf.nn.max_pool(A2,ksize=[1,4,4,1],strides=[1,4,4,1],padding='SAME')
     P2 = tf.contrib.layers.flatten(P2)
+    P2 = tf.nn.dropout(P2,keep_prob)
     Z3 = tf.add(tf.matmul(WL1,tf.transpose(P2)),b1)
     Z3 = tf.transpose(Z3)
-    #Z3 = tf.nn.dropout(keep_prob)
-    #Z4 = tf.contrib.layers.fully_connected(Z3,16,activation_fn=None)
-
-    return Z3
+    Z3 = tf.nn.softmax(Z3)
+    return Z3,keep_prob
 
 
 def predict(X, parameters):
@@ -74,10 +75,11 @@ def predict(X, parameters):
                   }
 
 
-    x = tf.placeholder("float", [None, 151,151])
+    x = tf.placeholder("float", [None, 151,151,1])
 
-    z4 = forward_prop_predict(x, parameters)
-    pred = tf.argmax(z4)
+    z3,keep_prob = forward_prop_predict(x, parameters)
+    #z3 = tf.nn.softmax(z3)
+    pred = tf.argmax(z3,1)
 
     sess = tf.Session()
     prediction = sess.run(pred, feed_dict = {x: X})
