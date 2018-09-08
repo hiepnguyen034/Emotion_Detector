@@ -15,7 +15,7 @@ The model detects if the person in the image is sad, neutral, happy, or surprise
 
 ![computation_graph_l2](https://user-images.githubusercontent.com/29159878/45193868-5b942a80-b21e-11e8-8efe-e9062936fe0b.png)
 
-# To test with specific images
+# To test with specific image(s)
 
 Clone the repos-> Open the ipynb and run every cell -> Insert path to image that needs to be tested -> run the function `test_specific_image(PATH)`
 
