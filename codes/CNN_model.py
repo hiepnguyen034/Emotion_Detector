@@ -111,7 +111,10 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate = 0.001,
     parameters = initialize_parameters()
     Z3, keep_prob = forward_prop(X,parameters)
     cost = compute_cost(Z3,Y)
-    L2_regularization_cost = lambd * (tf.reduce_sum(tf.square(parameters['W1'])) + tf.reduce_sum(tf.square(parameters['W2'])) + tf.reduce_sum(tf.square(parameters['WL1']))) / (2 * x_train.shape[0])
+    L2_regularization_cost = lambd * (tf.reduce_sum(
+                                    tf.square(parameters['W1'])) + tf.reduce_sum(
+                                    tf.square(parameters['W2'])) + tf.reduce_sum(
+                                    tf.square(parameters['WL1']))) / (2 * x_train.shape[0])
     cost = cost+L2_regularization_cost
     optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
 
@@ -124,7 +127,7 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate = 0.001,
         for epoch in range(num_epochs):
 
             minibatch_cost = 0.
-            num_minibatches = int(m / minibatch_size) 
+            num_minibatches = int(m / minibatch_size)
             seed = seed + 1
             minibatches = random_mini_batches(X_train, Y_train, minibatch_size, seed)
 
@@ -143,7 +146,7 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate = 0.001,
             if print_cost == True and epoch % 1 == 0:
                 costs.append(minibatch_cost)
         save_path = saver.save(sess, "./saved_model/CNN_model.ckpt")
-        print("Model is saved to ", save_path)       
+        print("Model is saved to ", save_path)
         file_writer=tf.summary.FileWriter('./logs',sess.graph)
 
         plt.plot(np.squeeze(costs))
@@ -169,6 +172,6 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate = 0.001,
         return train_accuracy, test_accuracy, parameters
 
 
- 
+
 if __name__ == '__main__':
 	model(x_train, y_train, x_test, y_test)
