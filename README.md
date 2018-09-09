@@ -17,5 +17,5 @@ The model detects if the person in the image is sad, neutral, happy, or surprise
 
 # To test with specific image(s)
 
-Clone the repos-> Open the notebook `customized_tests.ipynb` and run every cell -> Insert path to image that needs to be tested -> run the function `test_specific_image(PATH)`. Input must be an image of one person, preferably a selfie with an empty background
+Clone the repos-> Open the notebook `customized_tests.ipynb` and run all the cells before #CUSTOMIZED TEST CASES START FROM HERE# cell -> Insert path to the image that needs to be tested -> run the function `test_specific_image(PATH)`. Input must be an image of one person, preferably a selfie with an empty background
 
