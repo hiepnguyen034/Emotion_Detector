@@ -13,7 +13,8 @@ The model detects if the person in the image is sad, neutral, happy, or surprise
 
 # Computation graph
 
-![computation_graph_l2](https://user-images.githubusercontent.com/29159878/45193868-5b942a80-b21e-11e8-8efe-e9062936fe0b.png)
+![graph_large_attrs_key _too_large_attrs limit_attr_size 1024 run](https://user-images.githubusercontent.com/29159878/45260314-451ed800-b3b2-11e8-8ed1-18e083e2f6c6.png)
+
 
 # To test with specific image(s)
 
