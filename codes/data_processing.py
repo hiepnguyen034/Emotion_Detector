@@ -29,16 +29,25 @@ def get_images_and_labels(path):
     return images, labels
 
 
+# def get_emotion(labels):
+#     for i in range(len(labels)):
+#         if labels[i]=='happy' or labels[i]=='wink':
+#             labels[i]=2
+#         elif labels[i]=='surprised':
+#             labels[i]=3
+#         elif labels[i]=='sad' or labels[i]=='sleepy':
+#             labels[i]=0
+#         else:
+#             labels[i]=1
+#     return labels
+
+
 def get_emotion(labels):
-    for i in range(len(labels)):
-        if labels[i]=='happy' or labels[i]=='wink':
-            labels[i]=2
-        elif labels[i]=='surprised':
-            labels[i]=3
-        elif labels[i]=='sad' or labels[i]=='sleepy':
-            labels[i]=0
-        else:
-            labels[i]=1
-    return labels
 
+    emotion_table={'happy':2,
+               'wink':2,
+               'surprised':3,
+               'sad':0,
+               'sleepy':0}
 
+    return [1 if label not in emotion_table else emotion_table[label] for label in labels]
