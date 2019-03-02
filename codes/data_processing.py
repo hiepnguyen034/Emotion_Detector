@@ -2,7 +2,7 @@ import cv2, os
 import numpy as np
 from PIL import Image
 
-cascadePath = "C:\\Users\\Hiep Nguyen\\Desktop\\Emotion_Detector\\data\\haarcascade_frontalface_default.xml"
+cascadePath = "Emotion_Detector\\data\\haarcascade_frontalface_default.xml"
 faceCascade = cv2.CascadeClassifier(cascadePath);
 
 recognizer = cv2.face.LBPHFaceRecognizer_create()
